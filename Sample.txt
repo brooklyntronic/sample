@@ -1,0 +1,96 @@
+An example of using stateless components
+
+// In the stateful component pass in some properties via state and via props via redux
+<HeaderSearch value={this.state.searchText}
+        onChangeText ={(text)=>{this._onChangeText(text)}}
+        onSubmitEditing = {this.searchMatches.bind(this)}
+        onClearText={this._onClearText.bind(this)}
+        placeholder="Search Matchups..."
+>
+
+<SearchResults 
+        roundAvatar
+        onPress={this.openMatchScreen.bind(this)}
+        array={this.props.requestedSearchResults}
+        searching = {this.props.searchFetching}
+        imageProp = "avatar"
+        linkProp = "_id"
+        titleProp = "name"
+        subTitleProp = "location"
+        />
+
+</HeaderSearch>
+
+//HeaderSearch.js
+import React from 'react'
+import {  View } from 'react-native'
+import styles from './Styles/HeaderSearchStyle'
+import {SearchBar} from 'react-native-elements'
+
+// Using Es6 spread inside JSX is AWESOME
+  const headerSearch = (props) => {
+    // Bang!
+    const {children, ...otherProps} = props
+    return (
+        <View>
+        <SearchBar
+        clearIcon
+        lightTheme
+        round
+        containerStyle = {styles.searchBar}
+        // Kapow!!
+        {...otherProps} />
+        {children}
+        </View>
+        )}
+export default headerSearch
+
+//SearchResults.js
+import React from 'react'
+import { ScrollView, Text, FlatList, View } from 'react-native'
+import styles from './Styles/HeaderSearchStyle'
+import {List, ListItem} from 'react-native-elements'
+import Utilities from '../Services/Utilities'
+import ActivityIndicator from './ActivityIndicator'
+import PropTypes from 'prop-types'
+
+
+const searchResults = (props)=>{
+  const {array, searching, onPress, matchup, roundAvatar, imageProp, linkProp, titleProp, subTitleProp} = props
+  return (<View>
+    <ScrollView>
+    {!array && !searching ? (<View style={styles.centered}><Text style={styles.heading}>No Results</Text></View>) : null}
+    
+    {array  && (<View>
+
+      <List containerStyle={{borderTopWidth: 0}}>
+      <FlatList
+      data = {array}
+      keyExtractor = {item=>item[linkProp]}
+      renderItem = {({item})=>(
+        <ListItem
+        onPress={()=>{onPress.call(null, item[linkProp])}}
+        avatar={{ uri: item[imageProp] }}
+        roundAvatar = {roundAvatar}
+        subtitle={item[subtitleProp]}
+        titleStyle={styles.link}
+        title={item[titleProp]}
+        hideChevron
+        containerStyle={{borderBottomWidth: 0, marginVertical: 20}}
+        />)}
+      />
+      </List></View>)}
+    </ScrollView></View>)
+}
+searchResults.propTypes =  {
+    array: PropTypes.array,
+    onPress: PropTypes.func,
+    searching: PropTypes.bool,
+    matchup: PropTypes.bool,
+    roundAvatar: PropTypes.bool,
+    imageProp: PropTypes.string,
+    linkProp: PropTypes.string,
+    titleProp: PropTypes.string,
+    subTitleProp: PropTypes.string
+  }
+  export default searchResults
